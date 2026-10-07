@@ -3,11 +3,11 @@
 set -eu
 
 case "${1:-}" in
-	/devices/platform/hermes-kms*/drm/renderD[0-9]*) ;;
+	/devices/platform/hermes-kms*/drm/renderD[0-9]*|/devices/platform/hermes-kms*/drm/card[0-9]*) ;;
 	*) exit 1 ;;
 esac
 
-platform=${1%/drm/renderD*}
+platform=${1%/drm/*}
 node=/dev/dri/${1##*/}
 [ -c "$node" ] || exit 0
 role=$(cat "/sys${platform}/hermes_kms_role")

@@ -1,10 +1,12 @@
-# Per-card render-node ACLs for cards created through configfs.
+# Per-card DRM ACLs for cards created through configfs.
 #
-# A card created through configfs can name the UID it belongs to. The 72-
-# rule's short-lived ACL helper grants that user access after udev has applied
-# the final owner/mode. This rule removes the host's uaccess tag for a card
-# with explicit access_uid so its seat cannot grant a second user access.
+# A card created through configfs can name the UID it belongs to. The ACL helper
+# grants that user access after udev has applied the final owner/mode. Render
+# nodes with an explicit access UID remain root-owned and lose the host uaccess
+# tag so the active host seat cannot grant a second user access.
 #
-# A session card's primary node remains root-only and is reached through its
-# private seat broker. An unknown UID remains denied by the ACL helper.
+# Session primary nodes receive the same narrow named-UID ACL for compositors
+# that open DRM devices directly instead of through the private seat broker.
+# An unknown UID remains denied by the ACL helper.
 ACTION=="add|change", SUBSYSTEM=="drm", KERNEL=="renderD[0-9]*", DEVPATH=="*/platform/hermes-kms*/drm/renderD*", ATTRS{hermes_kms_access_uid}=="?*", OWNER="root", GROUP="root", MODE="0600", TAG-="uaccess"
+ACTION=="add|change", SUBSYSTEM=="drm", KERNEL=="card[0-9]*", DEVPATH=="*/platform/hermes-kms*/drm/card*", ATTRS{hermes_kms_role}=="session", RUN+="/usr/lib/hermes-kms/hermes-kms-render-acl %p"
